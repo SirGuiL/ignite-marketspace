@@ -1,9 +1,13 @@
-import { Box, HStack, useTheme } from "native-base";
+import { Box, HStack, IInputProps, useTheme } from "native-base";
 import { Input } from "./Input";
 import { MagnifyingGlass, Sliders } from "phosphor-react-native";
 import { TouchableOpacity } from "react-native";
 
-export function SearchInput() {
+type Props = IInputProps & {
+  openActionSheet: () => void;
+};
+
+export function SearchInput({ openActionSheet, ...rest }: Props) {
   const { colors, fontSizes } = useTheme();
 
   return (
@@ -22,7 +26,7 @@ export function SearchInput() {
 
           <Box mx={3} bg="gray.400" w="0.5" h="5" bgColor="gray.400" />
 
-          <TouchableOpacity>
+          <TouchableOpacity onPress={openActionSheet}>
             <Sliders size={fontSizes["lg"]} color={colors.gray["200"]} />
           </TouchableOpacity>
         </HStack>

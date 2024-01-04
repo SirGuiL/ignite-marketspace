@@ -27,6 +27,7 @@ export const THEME = extendTheme({
     thin: "Karla_300Light",
   },
   fontSizes: {
+    xxs: 10,
     xs: 12,
     sm: 14,
     md: 16,
@@ -37,5 +38,6 @@ export const THEME = extendTheme({
     14: 56,
     35: 140,
     6.5: 26,
+    card: 100,
   },
 });
