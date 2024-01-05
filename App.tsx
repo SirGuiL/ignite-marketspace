@@ -11,6 +11,7 @@ import { THEME } from "./src/theme";
 import { SignIn } from "@screens/SignIn";
 import { SignUp } from "@screens/SignUp";
 import { Home } from "@screens/Home";
+import { ProductDetails } from "@screens/ProductDetails";
 
 export default function App() {
   const [fontLoaded] = useFonts({
@@ -25,7 +26,8 @@ export default function App() {
 
   return (
     <NativeBaseProvider theme={THEME}>
-      <Home />
+      <ProductDetails />
+
       <StatusBar
         barStyle="dark-content"
         backgroundColor="transparent"
