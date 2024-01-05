@@ -12,6 +12,7 @@ import { SignIn } from "@screens/SignIn";
 import { SignUp } from "@screens/SignUp";
 import { Home } from "@screens/Home";
 import { ProductDetails } from "@screens/ProductDetails";
+import { MyProducts } from "@screens/MyProducts";
 
 export default function App() {
   const [fontLoaded] = useFonts({

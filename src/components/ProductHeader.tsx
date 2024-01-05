@@ -1,12 +1,18 @@
 import { Box, HStack, Heading, Pressable, useTheme } from "native-base";
 import { ArrowLeft, Plus } from "phosphor-react-native";
+import { ReactNode } from "react";
 
 type Props = {
-  addIcon?: boolean;
+  rightIcon?: ReactNode;
   title?: string;
+  leftIcon?: boolean;
 };
 
-export function ProductHeader({ addIcon = false, title = "" }: Props) {
+export function ProductHeader({
+  rightIcon,
+  leftIcon = true,
+  title = "",
+}: Props) {
   const { colors, fontSizes } = useTheme();
 
   return (
@@ -17,9 +23,13 @@ export function ProductHeader({ addIcon = false, title = "" }: Props) {
       justifyContent="space-between"
       alignItems="center"
     >
-      <Pressable>
-        <ArrowLeft size={fontSizes.xl} color={colors.gray["100"]} />
-      </Pressable>
+      {title && rightIcon && !leftIcon ? <Box w={6}></Box> : <></>}
+
+      {leftIcon && (
+        <Pressable>
+          <ArrowLeft size={fontSizes.xl} color={colors.gray["100"]} />
+        </Pressable>
+      )}
 
       {title && (
         <Heading color="gray.100" fontSize="lg">
@@ -27,13 +37,9 @@ export function ProductHeader({ addIcon = false, title = "" }: Props) {
         </Heading>
       )}
 
-      {addIcon && (
-        <Pressable>
-          <Plus size={fontSizes.xl} color={colors.gray["100"]} />
-        </Pressable>
-      )}
+      {rightIcon && <Pressable>{rightIcon}</Pressable>}
 
-      {title && !addIcon && <Box w={6}></Box>}
+      {title && !rightIcon && leftIcon ? <Box w={6}></Box> : <></>}
     </HStack>
   );
 }

@@ -40,5 +40,6 @@ export const THEME = extendTheme({
     35: 140,
     6.5: 26,
     card: 100,
+    22: 92,
   },
 });
