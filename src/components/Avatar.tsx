@@ -1,5 +1,4 @@
 import { Image, IBoxProps, Pressable, useTheme, Center } from "native-base";
-import { useState } from "react";
 
 import AvatarEmpty from "@assets/AvatarEmpty.png";
 import { PencilSimpleLine } from "phosphor-react-native";
@@ -7,21 +6,20 @@ import { PencilSimpleLine } from "phosphor-react-native";
 type Props = IBoxProps & {
   size: number;
   editable?: boolean;
+  uri?: string;
 };
 
-export function Avatar({ size, editable = false, ...rest }: Props) {
-  const [hasPhoto, setHasPhoto] = useState(false);
+export function Avatar({ size, editable = false, uri, ...rest }: Props) {
   const { colors } = useTheme();
 
   return (
     <Center w={size} h={size} {...rest} rounded="full">
       <Image
-        source={
-          hasPhoto ? { uri: "https://github.com/SirGuiL.png" } : AvatarEmpty
-        }
+        source={uri ? { uri } : AvatarEmpty}
         alt="avatar"
         w="full"
         h="full"
+        rounded="full"
       />
 
       {editable && (

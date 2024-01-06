@@ -1,3 +1,5 @@
+import { useNavigation } from "@react-navigation/native";
+import { AppNavigatorRoutesProps } from "@routes/app.routes";
 import { Box, HStack, Heading, Pressable, useTheme } from "native-base";
 import { ArrowLeft, Plus } from "phosphor-react-native";
 import { ReactNode } from "react";
@@ -6,14 +8,21 @@ type Props = {
   rightIcon?: ReactNode;
   title?: string;
   leftIcon?: boolean;
+  rightIconAction?: () => void;
 };
 
 export function ProductHeader({
   rightIcon,
   leftIcon = true,
   title = "",
+  rightIconAction,
 }: Props) {
   const { colors, fontSizes } = useTheme();
+  const navigation = useNavigation<AppNavigatorRoutesProps>();
+
+  const handleGoBack = () => {
+    navigation.goBack();
+  };
 
   return (
     <HStack
@@ -26,7 +35,7 @@ export function ProductHeader({
       {title && rightIcon && !leftIcon ? <Box w={6}></Box> : <></>}
 
       {leftIcon && (
-        <Pressable>
+        <Pressable onPress={handleGoBack}>
           <ArrowLeft size={fontSizes.xl} color={colors.gray["100"]} />
         </Pressable>
       )}
@@ -37,7 +46,9 @@ export function ProductHeader({
         </Heading>
       )}
 
-      {rightIcon && <Pressable>{rightIcon}</Pressable>}
+      {rightIcon && (
+        <Pressable onPress={rightIconAction}>{rightIcon}</Pressable>
+      )}
 
       {title && !rightIcon && leftIcon ? <Box w={6}></Box> : <></>}
     </HStack>

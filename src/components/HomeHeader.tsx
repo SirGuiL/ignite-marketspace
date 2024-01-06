@@ -3,9 +3,17 @@ import { Plus } from "phosphor-react-native";
 
 import { Avatar } from "./Avatar";
 import { Button } from "./Button";
+import { useNavigation } from "@react-navigation/native";
+import { AppNavigatorRoutesProps } from "@routes/app.routes";
 
 export function HomeHeader() {
   const { colors, sizes } = useTheme();
+  const navigation = useNavigation<AppNavigatorRoutesProps>();
+
+  const handleNavigateToCreateNewProduct = () => {
+    navigation.navigate("newProduct");
+  };
+
   return (
     <HStack px={6} py={5} alignItems="center">
       <Avatar size={12} />
@@ -27,6 +35,7 @@ export function HomeHeader() {
           _pressed={{
             bg: "gray.200",
           }}
+          onPress={handleNavigateToCreateNewProduct}
         />
       </Box>
     </HStack>

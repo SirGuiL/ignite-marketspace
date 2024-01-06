@@ -1,16 +1,27 @@
 import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Select as NBSelect, useTheme, HStack, Text, Box } from "native-base";
-import { CaretDown, Plus } from "phosphor-react-native";
+import { Plus } from "phosphor-react-native";
 
 import { ItemCard } from "@components/ItemCard";
 import { ProductHeader } from "@components/ProductHeader";
 import { Select } from "@components/Select";
+import { useNavigation } from "@react-navigation/native";
+import { AppNavigatorRoutesProps } from "@routes/app.routes";
 
 export function MyProducts() {
   const [selected, setSelected] = useState("all");
 
   const { colors, fontSizes } = useTheme();
+  const navigation = useNavigation<AppNavigatorRoutesProps>();
+
+  const handleCreateNewAnnouncement = () => {
+    navigation.navigate("newProduct");
+  };
+
+  const handleOpenProductDetail = () => {
+    navigation.navigate("productDetails");
+  };
 
   return (
     <SafeAreaView>
@@ -18,6 +29,7 @@ export function MyProducts() {
         title="Meus anúncios"
         rightIcon={<Plus size={fontSizes.xl} color={colors.gray["100"]} />}
         leftIcon={false}
+        rightIconAction={handleCreateNewAnnouncement}
       />
 
       <HStack mt={8} alignItems="center" justifyContent="space-between" px={6}>
@@ -27,17 +39,6 @@ export function MyProducts() {
           selectedValue={selected}
           onValueChange={(item) => setSelected(item)}
           w={32}
-          rounded="lg"
-          fontSize="sm"
-          color="gray.100"
-          fontFamily="body"
-          dropdownIcon={
-            <CaretDown
-              size={fontSizes["md"]}
-              color={colors.gray["300"]}
-              style={{ marginRight: 12 }}
-            />
-          }
         >
           <NBSelect.Item label="Todos" value="all" />
           <NBSelect.Item label="Ativos" value="active" />
@@ -52,7 +53,7 @@ export function MyProducts() {
         justifyContent="space-between"
         px={6}
       >
-        <ItemCard />
+        <ItemCard onPress={handleOpenProductDetail} />
         <ItemCard />
         <ItemCard />
         <ItemCard />

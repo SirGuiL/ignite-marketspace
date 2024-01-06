@@ -13,21 +13,32 @@ import { Adverts } from "@components/Adverts";
 import { SearchInput } from "@components/SearchInput";
 import { ItemCard } from "@components/ItemCard";
 import { ActionSheet } from "@components/ActionSheet";
+import { useNavigation } from "@react-navigation/native";
+import { AppNavigatorRoutesProps } from "@routes/app.routes";
 
 export function Home() {
   const { isOpen, onOpen, onClose } = useDisclose();
+  const navigation = useNavigation<AppNavigatorRoutesProps>();
+
+  const handleGoToMyProducts = () => {
+    navigation.navigate("myProducts");
+  };
+
+  const handleOpenProductDetails = () => {
+    navigation.navigate("productDetails");
+  };
 
   return (
     <ScrollView flex={1} bg="gray.600">
       <SafeAreaView>
         <HomeHeader />
 
-        <VStack px={6} mt={8}>
+        <VStack px={6} mt={8} pb={10}>
           <Text color="gray.300" fontSize="sm" fontFamily="body">
             Seus produtos anunciados para venda
           </Text>
 
-          <Adverts />
+          <Adverts onPress={handleGoToMyProducts} />
 
           <Text fontSize="sm" fontFamily="body" color="gray.300" mt={8}>
             Compre produtos variados
@@ -40,7 +51,7 @@ export function Home() {
             flexWrap="wrap"
             justifyContent="space-between"
           >
-            <ItemCard />
+            <ItemCard onPress={handleOpenProductDetails} />
 
             <ItemCard />
 

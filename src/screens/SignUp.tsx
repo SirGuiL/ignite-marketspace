@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigation } from "@react-navigation/native";
 import {
   Box,
   Center,
@@ -10,6 +11,7 @@ import {
   useTheme,
 } from "native-base";
 import { Eye, EyeSlash } from "phosphor-react-native";
+import * as ImagePicker from "expo-image-picker";
 
 import Logo from "@assets/logo.svg";
 
@@ -17,10 +19,37 @@ import { Input } from "@components/Input";
 import { Button } from "@components/Button";
 import { Avatar } from "@components/Avatar";
 
+import { AuthNavigatorRoutesProps } from "@routes/auth.routes";
+
 export function SignUp() {
   const [showingPassword, setShowingPassword] = useState(false);
+  const [showingConfirmPassword, setShowingConfirmPassword] = useState(false);
+  const [userAvatar, setUserAvatar] = useState("");
 
-  const { colors } = useTheme();
+  const { colors, sizes } = useTheme();
+  const navigation = useNavigation<AuthNavigatorRoutesProps>();
+
+  const handleGoToSignIn = () => {
+    navigation.navigate("signIn");
+  };
+
+  const handleChoosePhoto = async () => {
+    try {
+      const photoSelected = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 1,
+        aspect: [4, 4],
+        allowsEditing: true,
+      });
+
+      if (photoSelected.canceled) {
+        return;
+      }
+
+      setUserAvatar(photoSelected.assets[0].uri);
+      console.log(photoSelected);
+    } catch (error) {}
+  };
 
   return (
     <ScrollView
@@ -50,15 +79,20 @@ export function SignUp() {
             seus produtos
           </Text>
 
-          <Pressable mt={8}>
-            <Avatar size={20} borderWidth={2} borderColor="blue.500" editable />
+          <Pressable mt={8} onPress={handleChoosePhoto}>
+            <Avatar
+              size={20}
+              borderWidth={2}
+              borderColor="blue.500"
+              editable
+              uri={userAvatar}
+            />
           </Pressable>
 
           <Input
             w="full"
             placeholder="Nome"
             keyboardType="email-address"
-            autoCapitalize="none"
             mt={4}
           />
 
@@ -102,16 +136,18 @@ export function SignUp() {
           <Input
             w="full"
             placeholder="Confirmar senha"
-            secureTextEntry={!showingPassword}
+            secureTextEntry={!showingConfirmPassword}
             autoCapitalize="none"
             roundedRight="none"
             mt={4}
             rightElement={
               <Pressable
                 pr={4}
-                onPress={() => setShowingPassword(!showingPassword)}
+                onPress={() =>
+                  setShowingConfirmPassword(!showingConfirmPassword)
+                }
               >
-                {showingPassword ? (
+                {showingConfirmPassword ? (
                   <EyeSlash size={20} color={colors.gray["300"]} />
                 ) : (
                   <Eye size={20} color={colors.gray["300"]} />
@@ -144,6 +180,7 @@ export function SignUp() {
           _pressed={{
             bg: "gray.600",
           }}
+          onPress={handleGoToSignIn}
         />
       </Center>
     </ScrollView>

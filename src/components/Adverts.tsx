@@ -7,15 +7,15 @@ import {
   useTheme,
 } from "native-base";
 import { ArrowRight, Tag } from "phosphor-react-native";
-import { TouchableOpacity } from "react-native";
+import { TouchableOpacity, TouchableOpacityProps } from "react-native";
 
-type Props = {};
+type Props = TouchableOpacityProps & {};
 
-export function Adverts({}: Props) {
+export function Adverts({ ...rest }: Props) {
   const { colors, fontSizes } = useTheme();
 
   return (
-    <TouchableOpacity style={{ marginTop: 12 }}>
+    <TouchableOpacity style={{ marginTop: 12 }} {...rest}>
       <HStack
         pl={4}
         pr={5}

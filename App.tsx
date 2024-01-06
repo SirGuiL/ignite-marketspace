@@ -14,6 +14,8 @@ import { Home } from "@screens/Home";
 import { ProductDetails } from "@screens/ProductDetails";
 import { MyProducts } from "@screens/MyProducts";
 
+import { Routes } from "./src/routes";
+
 export default function App() {
   const [fontLoaded] = useFonts({
     Karla_300Light,
@@ -27,7 +29,7 @@ export default function App() {
 
   return (
     <NativeBaseProvider theme={THEME}>
-      <ProductDetails />
+      <Routes />
 
       <StatusBar
         barStyle="dark-content"

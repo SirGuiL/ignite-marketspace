@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigation } from "@react-navigation/native";
 import {
   Box,
   Center,
@@ -12,13 +13,21 @@ import { Eye, EyeSlash } from "phosphor-react-native";
 
 import MarketSpace from "@assets/marketspace.svg";
 import Logo from "@assets/logo.svg";
+
 import { Input } from "@components/Input";
 import { Button } from "@components/Button";
+
+import { AuthNavigatorRoutesProps } from "@routes/auth.routes";
 
 export function SignIn() {
   const [showingPassword, setShowingPassword] = useState(false);
 
   const { colors } = useTheme();
+  const navigation = useNavigation<AuthNavigatorRoutesProps>();
+
+  const handleGoToSignUp = () => {
+    navigation.navigate("signUp");
+  };
 
   return (
     <ScrollView
@@ -87,7 +96,7 @@ export function SignIn() {
         />
       </VStack>
 
-      <Center bg="white" h={56} px={12}>
+      <Center bg="white" h={48} px={12}>
         <Text color="gray.200" fontFamily="body" fontSize="sm">
           Ainda não tem acesso?
         </Text>
@@ -100,6 +109,7 @@ export function SignIn() {
           _pressed={{
             bg: "gray.600",
           }}
+          onPress={handleGoToSignUp}
         />
       </Center>
     </ScrollView>
