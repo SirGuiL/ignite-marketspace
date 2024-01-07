@@ -1,13 +1,14 @@
 import { useNavigation } from "@react-navigation/native";
 import { AppNavigatorRoutesProps } from "@routes/app.routes";
 import { Box, HStack, Heading, Pressable, useTheme } from "native-base";
-import { ArrowLeft, Plus } from "phosphor-react-native";
+import { ArrowLeft } from "phosphor-react-native";
 import { ReactNode } from "react";
 
 type Props = {
   rightIcon?: ReactNode;
   title?: string;
   leftIcon?: boolean;
+  isLoading?: boolean;
   rightIconAction?: () => void;
 };
 
@@ -15,6 +16,7 @@ export function ProductHeader({
   rightIcon,
   leftIcon = true,
   title = "",
+  isLoading = false,
   rightIconAction,
 }: Props) {
   const { colors, fontSizes } = useTheme();
@@ -47,7 +49,9 @@ export function ProductHeader({
       )}
 
       {rightIcon && (
-        <Pressable onPress={rightIconAction}>{rightIcon}</Pressable>
+        <Pressable onPress={rightIconAction} isDisabled={isLoading}>
+          {rightIcon}
+        </Pressable>
       )}
 
       {title && !rightIcon && leftIcon ? <Box w={6}></Box> : <></>}

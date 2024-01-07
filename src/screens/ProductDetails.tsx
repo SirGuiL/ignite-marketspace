@@ -44,7 +44,7 @@ export function ProductDetails() {
         }
       />
 
-      <ScrollView bg="gray.600">
+      <ScrollView bg="gray.600" showsVerticalScrollIndicator={false}>
         <ProductImage />
 
         <HStack px={6} py={5} mb={1} alignItems="center">

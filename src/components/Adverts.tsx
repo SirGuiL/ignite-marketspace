@@ -2,6 +2,7 @@ import {
   HStack,
   Heading,
   IBoxProps,
+  Skeleton,
   Text,
   VStack,
   useTheme,
@@ -9,13 +10,19 @@ import {
 import { ArrowRight, Tag } from "phosphor-react-native";
 import { TouchableOpacity, TouchableOpacityProps } from "react-native";
 
-type Props = TouchableOpacityProps & {};
+type Props = TouchableOpacityProps & {
+  isLoading?: boolean;
+};
 
-export function Adverts({ ...rest }: Props) {
+export function Adverts({ isLoading = false, ...rest }: Props) {
   const { colors, fontSizes } = useTheme();
 
   return (
-    <TouchableOpacity style={{ marginTop: 12 }} {...rest}>
+    <TouchableOpacity
+      style={{ marginTop: 12, opacity: isLoading ? 0.75 : 1 }}
+      disabled={isLoading}
+      {...rest}
+    >
       <HStack
         pl={4}
         pr={5}
@@ -27,9 +34,19 @@ export function Adverts({ ...rest }: Props) {
         <Tag size={22} color={colors.blue["700"]} />
 
         <VStack ml={4} flex={1}>
-          <Heading color="gray.200" fontFamily="heading" fontSize="lg">
-            4
-          </Heading>
+          {!isLoading ? (
+            <Heading color="gray.200" fontFamily="heading" fontSize="lg">
+              4
+            </Heading>
+          ) : (
+            <Skeleton
+              w={8}
+              h={5}
+              startColor="gray.500"
+              endColor="gray.400"
+              mt={1.5}
+            />
+          )}
 
           <Text color="gray.200" fontFamily="body" fontSize="xs">
             anúncios ativos

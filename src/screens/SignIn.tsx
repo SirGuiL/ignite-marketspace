@@ -8,8 +8,12 @@ import {
   Text,
   VStack,
   useTheme,
+  useToast,
 } from "native-base";
 import { Eye, EyeSlash } from "phosphor-react-native";
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 
 import MarketSpace from "@assets/marketspace.svg";
 import Logo from "@assets/logo.svg";
@@ -18,15 +22,62 @@ import { Input } from "@components/Input";
 import { Button } from "@components/Button";
 
 import { AuthNavigatorRoutesProps } from "@routes/auth.routes";
+import { useAuth } from "@hooks/useAuth";
+import { AppError } from "@utils/AppError";
+
+interface FormDataProps {
+  email: string;
+  password: string;
+}
+
+const signInSchema = yup.object({
+  email: yup.string().required("Informe o e-mail."),
+  password: yup.string().required("Informe a senha."),
+});
 
 export function SignIn() {
   const [showingPassword, setShowingPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { colors } = useTheme();
   const navigation = useNavigation<AuthNavigatorRoutesProps>();
+  const { SignIn } = useAuth();
+  const toast = useToast();
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormDataProps>({
+    resolver: yupResolver(signInSchema),
+  });
 
   const handleGoToSignUp = () => {
     navigation.navigate("signUp");
+  };
+
+  const handleSignIn = ({ email, password }: FormDataProps) => {
+    try {
+      setIsLoading(true);
+
+      SignIn({
+        email,
+        password,
+      });
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+
+      const title = isAppError
+        ? error.message
+        : "Não foi possível entrar. Tente novamente mais tarde.";
+
+      toast.show({
+        title,
+        placement: "top",
+        bgColor: "red.500",
+      });
+
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -53,33 +104,49 @@ export function SignIn() {
               </Text>
 
               <Box bg="white" rounded="md">
-                <Input
-                  w="full"
-                  placeholder="E-mail"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
+                <Controller
+                  control={control}
+                  name="email"
+                  render={({ field: { onChange, value } }) => (
+                    <Input
+                      w="full"
+                      placeholder="E-mail"
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      onChangeText={onChange}
+                      value={value}
+                    />
+                  )}
                 />
               </Box>
 
               <Box bg="white" mt={4} rounded="md">
-                <Input
-                  w="full"
-                  placeholder="Senha"
-                  secureTextEntry={!showingPassword}
-                  autoCapitalize="none"
-                  roundedRight="none"
-                  rightElement={
-                    <Pressable
-                      pr={4}
-                      onPress={() => setShowingPassword(!showingPassword)}
-                    >
-                      {showingPassword ? (
-                        <EyeSlash size={20} color={colors.gray["300"]} />
-                      ) : (
-                        <Eye size={20} color={colors.gray["300"]} />
-                      )}
-                    </Pressable>
-                  }
+                <Controller
+                  control={control}
+                  name="password"
+                  render={({ field: { onChange, value } }) => (
+                    <Input
+                      w="full"
+                      placeholder="Senha"
+                      secureTextEntry={!showingPassword}
+                      autoCapitalize="none"
+                      roundedRight="none"
+                      onChangeText={onChange}
+                      value={value}
+                      rightElement={
+                        <Pressable
+                          pr={4}
+                          onPress={() => setShowingPassword(!showingPassword)}
+                        >
+                          {showingPassword ? (
+                            <EyeSlash size={20} color={colors.gray["300"]} />
+                          ) : (
+                            <Eye size={20} color={colors.gray["300"]} />
+                          )}
+                        </Pressable>
+                      }
+                    />
+                  )}
                 />
               </Box>
             </Center>
@@ -93,6 +160,7 @@ export function SignIn() {
           _pressed={{
             bg: "blue.700",
           }}
+          onPress={handleSubmit(handleSignIn)}
         />
       </VStack>
 

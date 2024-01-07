@@ -1,5 +1,6 @@
-import { Plus } from "phosphor-react-native";
 import { useState } from "react";
+import { Plus } from "phosphor-react-native";
+import { useNavigation } from "@react-navigation/native";
 import { TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
@@ -12,9 +13,13 @@ import {
   Radio,
   ScrollView,
   Checkbox as NBCheckbox,
+  useToast,
 } from "native-base";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 
 import { Checkbox } from "@components/CheckBox";
 import { Input } from "@components/Input";
@@ -23,17 +28,40 @@ import { RadioButton } from "@components/RadioButton";
 import { Switch } from "@components/Switch";
 import { SelectedProductImage } from "@components/SelectedProductImage";
 import { Button } from "@components/Button";
-import { useNavigation } from "@react-navigation/native";
+
 import { AppNavigatorRoutesProps } from "@routes/app.routes";
+import { api } from "@services/api";
+import { AppError } from "@utils/AppError";
+
+interface FormDataProps {
+  name: string;
+  description: string;
+  value: string;
+}
+
+const newProductSchema = yup.object({
+  name: yup.string().required("Informe o nome."),
+  description: yup.string().required("Informe a descrição."),
+  value: yup.string().required("Informe o valor"),
+});
 
 export function NewProductAnnouncement() {
   const [productState, setProductState] = useState("");
   const [tradable, setTradable] = useState(false);
-  const [groupValue, setGroupValue] = useState([]);
+  const [methods, setMethods] = useState([]);
   const [images, setImages] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { colors, fontSizes } = useTheme();
+  const toast = useToast();
   const navigation = useNavigation<AppNavigatorRoutesProps>();
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormDataProps>({
+    resolver: yupResolver(newProductSchema),
+  });
 
   const handleSelectImages = async () => {
     try {
@@ -54,8 +82,6 @@ export function NewProductAnnouncement() {
       });
 
       setImages(selectedImages);
-
-      console.log(selectedImages);
     } catch (error) {}
   };
 
@@ -65,15 +91,64 @@ export function NewProductAnnouncement() {
     });
   };
 
-  const handleCreateAnnouncement = () => {
-    navigation.navigate("productDetails");
+  const handleCreateAnnouncement = async (data: FormDataProps) => {
+    if (!productState) {
+      toast.show({
+        title: "Informe o estado do produto.",
+        placement: "top",
+        bgColor: "red.500",
+      });
+      return;
+    }
+
+    if (methods.length <= 0) {
+      toast.show({
+        title: "Informe os métodos de pagamento.",
+        placement: "top",
+        bgColor: "red.500",
+      });
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+
+      await api.post("/products", {
+        name: data.name,
+        description: data.description,
+        is_new: productState === "new",
+        price: data.value,
+        accept_trade: tradable,
+        payment_methods: [methods],
+      });
+
+      navigation.navigate("productDetails");
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+
+      const title = isAppError
+        ? error.message
+        : "Não foi possível entrar. Tente novamente mais tarde.";
+
+      toast.show({
+        title,
+        placement: "top",
+        bgColor: "red.500",
+      });
+
+      setIsLoading(false);
+    }
+  };
+
+  const handleCancel = () => {
+    navigation.goBack();
   };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <ProductHeader title="Criar anúncio" />
 
-      <ScrollView flex={1}>
+      <ScrollView flex={1} showsVerticalScrollIndicator={false}>
         <VStack px={6} mt={6} alignItems="flex-start" pb={20}>
           <Heading color="gray.200" fontSize="md" fontFamily="heading">
             Imagens
@@ -124,14 +199,35 @@ export function NewProductAnnouncement() {
             Sobre o produto
           </Heading>
 
-          <Input placeholder="Título do anúncio" mt={4} />
+          <Controller
+            control={control}
+            name="name"
+            render={({ field: { onChange, value } }) => (
+              <Input
+                placeholder="Título do anúncio"
+                mt={4}
+                onChangeText={onChange}
+                value={value}
+                isDisabled={isLoading}
+              />
+            )}
+          />
 
-          <Input
-            placeholder="Descrição do produto"
-            h={40}
-            mt={4}
-            textAlignVertical="top"
-            multiline
+          <Controller
+            control={control}
+            name="description"
+            render={({ field: { onChange, value } }) => (
+              <Input
+                placeholder="Descrição do produto"
+                h={40}
+                mt={4}
+                textAlignVertical="top"
+                multiline
+                onChangeText={onChange}
+                value={value}
+                isDisabled={isLoading}
+              />
+            )}
           />
 
           <Radio.Group
@@ -144,8 +240,16 @@ export function NewProductAnnouncement() {
             colorScheme="info"
           >
             <HStack justifyContent="space-between" w="full" mt={4}>
-              <RadioButton value="new" label="Produto novo" />
-              <RadioButton value="used" label="Produto usado" />
+              <RadioButton
+                value="new"
+                label="Produto novo"
+                isDisabled={isLoading}
+              />
+              <RadioButton
+                value="used"
+                label="Produto usado"
+                isDisabled={isLoading}
+              />
             </HStack>
           </Radio.Group>
 
@@ -153,14 +257,23 @@ export function NewProductAnnouncement() {
             Venda
           </Heading>
 
-          <Input
-            placeholder="Valor do produto"
-            mt={4}
-            InputLeftElement={
-              <Text fontSize="md" fontFamily="body" color="gray.100" ml={4}>
-                R$
-              </Text>
-            }
+          <Controller
+            control={control}
+            name="value"
+            render={({ field: { onChange, value } }) => (
+              <Input
+                placeholder="Valor do produto"
+                mt={4}
+                onChangeText={onChange}
+                value={value}
+                InputLeftElement={
+                  <Text fontSize="md" fontFamily="body" color="gray.100" ml={4}>
+                    R$
+                  </Text>
+                }
+                isDisabled={isLoading}
+              />
+            )}
           />
 
           <Heading color="gray.200" fontSize="md" fontFamily="heading" mt={8}>
@@ -172,6 +285,7 @@ export function NewProductAnnouncement() {
             size="lg"
             onTrackColor="blue.500"
             onValueChange={() => setTradable(!tradable)}
+            isDisabled={isLoading}
           />
 
           <Heading color="gray.200" fontSize="md" fontFamily="heading" mt={4}>
@@ -181,25 +295,38 @@ export function NewProductAnnouncement() {
           <VStack mt={4}>
             <NBCheckbox.Group
               accessibilityLabel="choose values"
-              defaultValue={groupValue}
+              defaultValue={methods}
+              onChange={setMethods}
             >
-              <Checkbox value="bank-slip" text="Boleto" colorScheme="info" />
-              <Checkbox value="pix" text="Pix" colorScheme="info" />
-              <Checkbox value="money" text="Dinheiro" colorScheme="info" />
               <Checkbox
-                value="credit-card"
+                value="boleto"
+                text="Boleto"
+                colorScheme="info"
+                isDisabled={isLoading}
+              />
+              <Checkbox
+                value="pix"
+                text="Pix"
+                colorScheme="info"
+                isDisabled={isLoading}
+              />
+              <Checkbox
+                value="cash"
+                text="Dinheiro"
+                colorScheme="info"
+                isDisabled={isLoading}
+              />
+              <Checkbox
+                value="card"
                 text="Cartão de Crédito"
                 colorScheme="info"
+                isDisabled={isLoading}
               />
               <Checkbox
-                value="debit-card"
-                text="Cartão de Débito"
-                colorScheme="info"
-              />
-              <Checkbox
-                value="deposit-bank"
+                value="deposit"
                 text="Depósito Bancário"
                 colorScheme="info"
+                isDisabled={isLoading}
               />
             </NBCheckbox.Group>
           </VStack>
@@ -222,6 +349,11 @@ export function NewProductAnnouncement() {
             bg: "gray.400",
           }}
           mr={3}
+          isDisabled={isLoading}
+          _disabled={{
+            opacity: 0.75,
+          }}
+          onPress={handleCancel}
         />
 
         <Button
@@ -231,7 +363,11 @@ export function NewProductAnnouncement() {
           _pressed={{
             bg: "gray.200",
           }}
-          onPress={handleCreateAnnouncement}
+          isDisabled={isLoading}
+          _disabled={{
+            opacity: 0.75,
+          }}
+          onPress={handleSubmit(handleCreateAnnouncement)}
         />
       </HStack>
     </SafeAreaView>

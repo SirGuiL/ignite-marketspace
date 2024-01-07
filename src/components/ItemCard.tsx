@@ -1,14 +1,24 @@
-import { Badge, HStack, Heading, Image, Text, VStack } from "native-base";
+import {
+  Badge,
+  HStack,
+  Heading,
+  Image,
+  Skeleton,
+  Text,
+  VStack,
+} from "native-base";
 import { Avatar } from "./Avatar";
 
 import Example from "@assets/example.png";
 import { TouchableOpacity, TouchableOpacityProps } from "react-native";
 
-type Props = TouchableOpacityProps & {};
+type Props = TouchableOpacityProps & {
+  isLoading?: boolean;
+};
 
-export function ItemCard({ ...rest }: Props) {
+export function ItemCard({ isLoading = false, ...rest }: Props) {
   return (
-    <TouchableOpacity {...rest}>
+    <TouchableOpacity disabled={isLoading} {...rest}>
       <VStack mt={6}>
         <HStack
           h="card"
@@ -16,32 +26,73 @@ export function ItemCard({ ...rest }: Props) {
           alignItems="flex-start"
           justifyContent="space-between"
         >
-          <Image
-            source={Example}
-            alt="Produto"
-            h="full"
-            w="full"
-            position="absolute"
-            borderTopRadius="lg"
-          />
+          {!isLoading ? (
+            <Image
+              source={Example}
+              alt="Produto"
+              h="full"
+              w="full"
+              position="absolute"
+              borderTopRadius="lg"
+            />
+          ) : (
+            <Skeleton
+              w="full"
+              h="full"
+              position="absolute"
+              borderTopRadius="lg"
+              startColor="gray.500"
+              endColor="gray.400"
+            />
+          )}
 
-          <Avatar size={6} mt={1} ml={1} marginRight="auto" />
+          {!isLoading ? (
+            <Avatar size={6} mt={1} ml={1} marginRight="auto" />
+          ) : (
+            <></>
+          )}
 
-          <Badge px={2} py={0.5} mt={1} mr={1} bg="gray.200" rounded="full">
-            <Text color="white" textTransform="uppercase" fontSize="xxs">
-              Usado
-            </Text>
-          </Badge>
+          {!isLoading ? (
+            <Badge px={2} py={0.5} mt={1} mr={1} bg="gray.200" rounded="full">
+              <Text color="white" textTransform="uppercase" fontSize="xxs">
+                Usado
+              </Text>
+            </Badge>
+          ) : (
+            <></>
+          )}
         </HStack>
 
         <VStack>
-          <Text fontSize="sm" fontFamily="body" color="gray.200">
-            Tênis vermelho
-          </Text>
+          {!isLoading ? (
+            <Text fontSize="sm" fontFamily="body" color="gray.200">
+              Tênis vermelho
+            </Text>
+          ) : (
+            <Skeleton
+              w={24}
+              h={3}
+              rounded="md"
+              startColor="gray.500"
+              endColor="gray.400"
+              mt={1.5}
+            />
+          )}
 
-          <Heading fontSize="md" fontFamily="heading" color="gray.100">
-            R$ 59,90
-          </Heading>
+          {!isLoading ? (
+            <Heading fontSize="md" fontFamily="heading" color="gray.100">
+              R$ 59,90
+            </Heading>
+          ) : (
+            <Skeleton
+              w={10}
+              h={4}
+              rounded="md"
+              startColor="gray.500"
+              endColor="gray.400"
+              mt={1}
+            />
+          )}
         </VStack>
       </VStack>
     </TouchableOpacity>

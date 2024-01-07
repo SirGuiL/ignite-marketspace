@@ -31,6 +31,7 @@ export function SearchInput({ openActionSheet, ...rest }: Props) {
           </TouchableOpacity>
         </HStack>
       }
+      {...rest}
     />
   );
 }
